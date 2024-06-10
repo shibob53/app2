@@ -34,12 +34,13 @@ if __name__ == "__main__":
 from flask import Flask
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service as ChromeService
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 import os
+import logging
 
 app = Flask(__name__)
+
+# إعداد تسجيل الرسائل
+logging.basicConfig(level=logging.INFO)
 
 def driversetup():
     options = webdriver.ChromeOptions()
@@ -55,20 +56,28 @@ def driversetup():
     driver = webdriver.Chrome(options=options)
     driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined});")
     return driver
-    
+
 @app.route('/')
 def hello_world():
+    logging.info("Received request at root endpoint")
     driver = driversetup()
     try:
         driver.get('https://www.google.com')
         current_url = driver.current_url
+        logging.info(f"Current URL: {current_url}")
     except Exception as e:
         current_url = f"An error occurred: {e}"
+        logging.error(current_url)
     finally:
         driver.quit()
     
-    return f'{current_url} - Hello from Koyeb'
+    return f'{current_url} - Hello from Render'
 
 if __name__ == "__main__":
-    app.run()
+    port = int(os.environ.get("PORT", 5000))
+    logging.info(f"Starting server on port {port}")
+    app.run(host='0.0.0.0', port=port)
+
+
+
     
