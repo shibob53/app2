@@ -52,11 +52,21 @@ def driversetup():
     options.add_argument("--disable-extensions")
     options.add_argument("--incognito")
     options.add_argument("--disable-blink-features=AutomationControlled")
-    
-    service = ChromeService(executable_path='/path/to/chromedriver')  # Specify the path to your chromedriver
-    driver = webdriver.Chrome(service=service, options=options)
+    driver = webdriver.Chrome(options=options)
     driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined});")
     return driver
+    
+app = Flask(__name__)
+ 
+@app.route('/')
+def hello_world():
+  driver = driversetup()
+  
+  return driver.current_url + 'Hello from Koyeb'
+ 
+ 
+if __name__ == "__main__":
+    app.run()'''
 
 @app.route('/')
 def hello_world():
