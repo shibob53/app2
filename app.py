@@ -26,7 +26,7 @@ app = Flask(__name__)
 def hello_world():
   driver = driversetup()
   
-  return driver.cur + 'Hello from Koyeb'
+  return driver.current_url + 'Hello from Koyeb'
  
  
 if __name__ == "__main__":
