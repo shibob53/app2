@@ -56,18 +56,6 @@ def driversetup():
     driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined});")
     return driver
     
-app = Flask(__name__)
- 
-@app.route('/')
-def hello_world():
-  driver = driversetup()
-  
-  return driver.current_url + 'Hello from Koyeb'
- 
- 
-if __name__ == "__main__":
-    app.run()'''
-
 @app.route('/')
 def hello_world():
     driver = driversetup()
