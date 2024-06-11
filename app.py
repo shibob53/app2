@@ -68,8 +68,8 @@ def hello_world():
     except Exception as e:
         current_url = f"An error occurred: {e}"
         logging.error(current_url)
-    finally:
-        driver.quit()
+    #finally:
+        #driver.quit()
     
     return f'{current_url} - Hello from Render'
 @app.route('/hello')
@@ -79,9 +79,9 @@ def hello():
   return driver.current_url + ' Hello'
  
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    logging.info(f"Starting server on port {port}")
-    app.run(host='0.0.0.0', port=port)
+    #port = int(os.environ.get("PORT", 5000))
+    #logging.info(f"Starting server on port {port}")
+    app.run(debug=True)
 
 
 
