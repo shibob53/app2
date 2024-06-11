@@ -56,14 +56,19 @@ def driversetup():
     driver = webdriver.Chrome(options=options)
     driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined});")
     return driver
-driver = driversetup () 
-@app.route('/')
+Ldriver ={} #driversetup () 
+@app.route('/', methods=["POST"])
 def hello_world():
     logging.info("Received request at root endpoint")
-    global driver# = driversetup()
+    global Ldriver
+    data = request.get_json()
+    s = data['s'] 
+    u = data['u'] 
+    driver = driversetup()
     try:
-        driver.get('https://www.google.com')
+        driver.get(u)
         current_url = driver.current_url
+        Ldriver[s] =driver
         logging.info(f"Current URL: {current_url}")
     except Exception as e:
         current_url = f"An error occurred: {e}"
@@ -72,11 +77,12 @@ def hello_world():
         #driver.quit()
     
     return f'{current_url} - Hello from Render'
-@app.route('/hello')
+@app.route('/hello', methods=["POST"])
 def hello():
-  global driver #= driversetup()
-  
-  return driver.current_url + ' Hello'
+    data = request.get_json()
+    s = data ['s'] 
+    global Ldriver #= driversetup()
+    return driver[s].current_url + ' Hello'
  
 if __name__ == "__main__":
     #port = int(os.environ.get("PORT", 5000))
