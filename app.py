@@ -21,7 +21,7 @@ def driversetup():
     return driver
     
 app = Flask(__name__)
- 
+
 @app.route('/')
 def hello_world():
   driver = driversetup()
@@ -56,11 +56,11 @@ def driversetup():
     driver = webdriver.Chrome(options=options)
     driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined});")
     return driver
-
+driver = driversetup () 
 @app.route('/')
 def hello_world():
     logging.info("Received request at root endpoint")
-    driver = driversetup()
+    global driver# = driversetup()
     try:
         driver.get('https://www.google.com')
         current_url = driver.current_url
@@ -72,7 +72,12 @@ def hello_world():
         driver.quit()
     
     return f'{current_url} - Hello from Render'
-
+@app.route('/hello')
+def hello():
+  global driver #= driversetup()
+  
+  return driver.current_url + ' Hello'
+ 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     logging.info(f"Starting server on port {port}")
