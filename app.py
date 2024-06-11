@@ -83,7 +83,7 @@ def hello():
     data = request.get_json()
     s = data ['s'] 
     global Ldriver #= driversetup()
-    return driver[s].current_url + ' Hello'
+    return Ldriver[s].current_url + ' Hello'
  
 if __name__ == "__main__":
     #port = int(os.environ.get("PORT", 5000))
