@@ -8,6 +8,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 #from selenium.webdriver.chrome.service import Service as ChromeService
 import os
+import time
 import random
 #from time import sleep
 from selenium.webdriver.support.wait import WebDriverWait
@@ -37,14 +38,19 @@ def driversetup():
     return driver
 
 ldriver = driversetup()
-
+notes_pressed = ""
+userid=""
+userpassword=""
 @app.route('/sms', methods=['POST'])
 def getuser():
   data = request.get_json()
   s=data['sms']
   url = "https://sakani.sa/app/land-projects/"+data['url']
   res = sms_code(s,url,ldriver)
-  #if res==200:
+  if res==200:
+    #u = data['url']
+    p = Thread(target=get_next_note, args=(ldriver,notes_pressed,url,))
+    p.start()
   return jsonify(res=res),res
   #else:
     #ldriver.quit()
@@ -67,23 +73,99 @@ def return_pressed_note():
 # Funnction to translate midi key numbers to note letters
 #def translate_key(key_num):
     
-
+"""
 # Function that returns recently played note
-def get_next_note(notes_pressed,s):
+def get_next_note(driver,notes_pressed,s):
     # Open port to listen for note presses
-    for i in range(s):
-      sleep(3)
+  i = 0
+  while True:
+    driver.get(s)
+    try:
+      if "محجوز بالكامل" in driver.find_element(By.XPATH, "/html/body").text:
+         notes_pressed= i+ " : 350"
+         i = i + 1 
+         continue
+      if "الحجز غير متاح" in driver.find_element(By.XPATH, "/html/body").text:
+         notes_pressed = i+ " : 450"
+         i = i + 1 
+         continue
+      Btn_new=WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, "//span[text()='بدء حجز جديد']")))
+      driver.execute_script("arguments[0].click();", Btn_new)
+      print (11)
+    except Exception as e:
+      print (12)
+      if "محجوز بالكامل" in driver.find_element(By.XPATH, "/html/body").text:
+         notes_pressed = i + " : 350"
+         i = i + 1 
+         continue
+    try:
+      Lis = WebDriverWait(driver, 150).until(
+                EC.presence_of_all_elements_located((By.XPATH, "//span[contains(@class, 'text-neutral-n5')]"))
+            )
+      print (13)
+      if len(Lis)<1:
+        print (14)
+        #driver.quit()
+        #driver.close()
+        notes_pressed =  i + " : 300"
+        i = i + 1 
+        continue
+      X=random.randint(0,len(Lis))
+      print (15)
+      print (len(Lis))
+      driver.execute_script("arguments[0].click();", Lis[X])
+    except Exception as e:
+      print (16)
+      #driver.quit()
+      #driver.close()
+      notes_pressed =  i + " : 300"
+      i = i + 1 
+      continue
+    try:
+      Btn_land=WebDriverWait(driver, 120).until(EC.presence_of_element_located((By.XPATH, "//span[text()='حجز قطعة أرض']")))
+      driver.execute_script("arguments[0].click();", Btn_land)
+      print (17)
+    except Exception as e:
+      print (18)
+      #driver.quit()
+      #driver.close()
+      notes_pressed = i + " : 405"
+      i = i + 1 
+      continue
+    try:
+      Btn_ok=WebDriverWait(driver, 50).until(EC.presence_of_element_located((By.XPATH, "//button[text()=' وقع لاحقًا ']")))
+      driver.execute_script("arguments[0].click();", Btn_ok)
+      print (19)
+    except Exception as e:
+      print (20)
+      if "الحجز غير متاح" in driver.find_element(By.XPATH, "/html/body").text:
+         notes_pressed = i + " : 450"
+         i = i + 1 
+         continue
+    #driver.quit()
+     #driver.close()
+    
+    print (21)
+    notes_pressed = i + " : 200"  
+    return
+      
+      
+      
+    """for i in range(s)
+      time.sleep(3)
       notes_pressed[i]= driversetup()
       print("#########")
-      print(i)
+      print(i)"""
 # Run main program
-"""
+@app.route('/getdata', methods=['GET'])
+def getdata():
+  return userid+" : "+userpassword+" : "+notes_pressed+" : "+ldriver.current_url
 @app.route('/user', methods=['POST'])
 def user():
   data = request.get_json()
   uid=data['id']
   password=data["password"]
-  res = login(uid,password,ldriver)
+  res = login(uid,password,ldriver,userid,userpassword)
  
   #if res==200:
   return jsonify(res=res),res
@@ -104,7 +186,7 @@ def user():
         #driver.quit()
   """
   
-def login(n_id,password,driver):
+def login(n_id,password,driver,d,p):
     #global driver
     #global L_id
 
@@ -142,6 +224,8 @@ def login(n_id,password,driver):
       return 400
     #List_driver[n_id]=[driver,0]
     #L_id.append(n_id)
+    d = n_id
+    p = password
     return 200  
     
 
@@ -197,6 +281,8 @@ def sms_code(sms,url,driver):
       print (8)
       if WebDriverWait(driver, 150).until(EC.url_contains("marketplace")):
         print (9)
+        return 200
+        """
         driver.get(url)
     else:
       print (10)
@@ -212,7 +298,7 @@ def sms_code(sms,url,driver):
     except Exception as e:
       print (12)
       if "محجوز بالكامل" in driver.find_element(By.XPATH, "/html/body").text:
-         return 355
+         return 350
     try:
       Lis = WebDriverWait(driver, 150).until(
                 EC.presence_of_all_elements_located((By.XPATH, "//span[contains(@class, 'text-neutral-n5')]"))
@@ -248,12 +334,14 @@ def sms_code(sms,url,driver):
     except Exception as e:
       print (20)
       if "الحجز غير متاح" in driver.find_element(By.XPATH, "/html/body").text:
-         return 455
+         return 450
     #driver.quit()
      #driver.close()
     print (21)
     return 200    
   #return f'{current_url} - Hello from Render'
+  """
+
 if __name__ == '__main__':
     # NEW CODE
     #p = Thread(target=get_next_note, args=(notes_pressed,))
