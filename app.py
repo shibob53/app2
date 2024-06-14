@@ -346,5 +346,6 @@ if __name__ == '__main__':
     # NEW CODE
     #p = Thread(target=get_next_note, args=(notes_pressed,))
     #p.start()
-    app.run(host='0.0.0.0', use_reloader=False)
+    app.run(debug=True)  
+    #app.run(host='0.0.0.0', use_reloader=False)
     #p.join()&w
